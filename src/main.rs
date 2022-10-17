@@ -45,29 +45,26 @@ enum Enum { First, Second, Third }
 impl eframe::App for MyApp {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default().show(ctx, |ui| {
-            ui.label("Это просто надпись");
-            ui.hyperlink("https://github.com/emilk/egui");
-            ui.text_edit_singleline(&mut self.my_string);
-            if ui.button("Очистить").clicked() { self.my_string = "".to_string() }
-            ui.add(egui::Slider::new(&mut self.my_f32, 0.0..=100.0));
-            ui.add(egui::DragValue::new(&mut self.my_f32));
-
-            ui.checkbox(&mut self.my_boolean, "Checkbox");
-
-            
-            ui.horizontal(|ui| {
-                ui.radio_value(&mut self.my_enum, Enum::First, "First");
-                ui.radio_value(&mut self.my_enum, Enum::Second, "Second");
-                ui.radio_value(&mut self.my_enum, Enum::Third, "Third");
+            ui.horizontal_wrapped(|ui| {
+                ui.spacing_mut().item_spacing.x = 0.0; // remove spacing between widgets
+                // `radio_value` also works for enums, integers, and more.
+                ui.radio_value(&mut self.my_boolean, false, "Off");
+                ui.radio_value(&mut self.my_boolean, true, "On");
             });
 
-            ui.separator();
-
-            // ui.image(my_image, [640.0, 480.0]);
-
-            ui.collapsing("Click to see what is hidden!", |ui| {
-                ui.label("Not much, as it turns out");
+            ui.group(|ui| {
+                ui.label("Within a frame");
+                ui.set_min_height(200.0);
             });
+
+            // A `scope` creates a temporary [`Ui`] in which you can change settings:
+            ui.scope(|ui| {
+                ui.visuals_mut().override_text_color = Some(egui::Color32::RED);
+                ui.style_mut().override_text_style = Some(egui::TextStyle::Monospace);
+                ui.style_mut().wrap = Some(false);
+
+                ui.label("This text will be red, monospace, and won't wrap to a new line");
+            }); // the temporary settings are reverted here
         });
 
         egui::Area::new("my_area")
@@ -78,13 +75,15 @@ impl eframe::App for MyApp {
             .stroke(egui::Stroke::new(3.0, self.my_color2))
             .rounding(egui::Rounding::same(5.0))
             .show(ui, |ui| {
-                ui.add(egui::Slider::new(&mut self.my_f32, 0.0..=100.0));
-                ui.add(egui::DragValue::new(&mut self.my_f32));
-                ui.horizontal(|ui| {
-                    egui::color_picker::color_edit_button_hsva(ui, 
-                        &mut self.my_color, egui::color_picker::Alpha::BlendOrAdditive);
-                    egui::color_picker::color_edit_button_hsva(ui, 
-                        &mut self.my_color2, egui::color_picker::Alpha::BlendOrAdditive);
+                ui.collapsing("Heading", |ui| { 
+                    ui.add(egui::Slider::new(&mut self.my_f32, 0.0..=100.0));
+                    ui.add(egui::DragValue::new(&mut self.my_f32));
+                    ui.horizontal(|ui| {
+                        egui::color_picker::color_edit_button_hsva(ui, 
+                            &mut self.my_color, egui::color_picker::Alpha::BlendOrAdditive);
+                        egui::color_picker::color_edit_button_hsva(ui, 
+                            &mut self.my_color2, egui::color_picker::Alpha::BlendOrAdditive);
+                    });
                 });
             });
         });
