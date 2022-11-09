@@ -1,5 +1,5 @@
 use eframe::{ egui };
-use egui::{Response, style::Margin};
+use egui::{ Response, style::Margin };
 
 fn main() {
     let options = eframe::NativeOptions::default();
@@ -25,30 +25,21 @@ impl MyApp {
         Self::default()
     }
 
-    fn draw_lesson1(&mut self, ctx: &egui::Context) {
-        egui::TopBottomPanel::top("main_top_panel").resizable(true).show(ctx, |ui| {
-            // egui::SidePanel::left("left_top_panel").resizable(true).show(ctx, |ui| {
-            //     ui.collapsing("CollapsingHeader", |ui| {
-            //         ui.label("Body"); 
-            //     }).header_response;
-            // });
-            
-            // egui::SidePanel::right("right_top_panel").resizable(true).show(ctx, |ui| {
-            //     ui.collapsing("CollapsingHeader2", |ui| {
-            //         ui.label("Body"); 
-            //     }).header_response;
-            // });
-            
-            ui.text_edit_multiline(&mut self.test_str);
-        });
+    fn draw_lesson1(&mut self, ctx: &egui::Context, ui: &mut egui::Ui) {
+        let win_size = ui.max_rect();
+        let win_width = win_size.width();
+        let win_height = win_size.height();
 
-        egui::TopBottomPanel::bottom("main_bottom_panel").resizable(true).show(ctx, |ui| {
-            ui.collapsing("CollapsingHeader3", |ui| {
-                ui.label("Body"); 
-            }).header_response;
+        let pad_mult = 0.1;
+        let frame_mult = 1.0 - (pad_mult * 2.0);
 
-            ui.text_edit_multiline(&mut self.test_str);
-        });
+        egui::Frame::none()
+            .outer_margin(Margin { left: win_width * pad_mult, top: win_height * pad_mult, right: 0.0, bottom: 0.0 })
+            .fill(egui::Color32::RED)
+            .show(ui, |ui| {
+                ui.set_min_size(egui::Vec2::new(win_width * frame_mult, win_height * frame_mult));
+
+            });
     }
 
     fn draw_lesson2(ctx: &egui::Context, ui: &mut egui::Ui) {
@@ -88,7 +79,7 @@ impl eframe::App for MyApp {
 
         egui::CentralPanel::default().show(ctx, |ui| {
             match self.current_lesson {
-                Lessons::Less1 => self.draw_lesson1(ctx),
+                Lessons::Less1 => self.draw_lesson1(ctx, ui),
                 Lessons::Less2 => Self::draw_lesson2(ctx, ui),
                 Lessons::Less3 => Self::draw_lesson3(ctx, ui),
                 Lessons::Less4 => Self::draw_lesson4(ctx, ui),
